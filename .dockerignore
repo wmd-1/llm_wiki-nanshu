@@ -1,0 +1,25 @@
+# Build artifacts
+node_modules/
+dist/
+src-tauri/target/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+# Note: docker/entrypoint.sh is NOT ignored — it's needed in the build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.tgz

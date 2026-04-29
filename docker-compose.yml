@@ -1,0 +1,33 @@
+services:
+  llm-wiki:
+    # 离线环境：请先在联网机器上执行 `docker build -t llm-wiki:latest .`
+    # 然后 `docker save llm-wiki:latest -o llm-wiki.tar` 导出，在离线服务器 `docker load -i llm-wiki.tar` 加载
+    image: llm-wiki:latest
+    container_name: llm-wiki
+    ports:
+      - "6080:6080"   # noVNC web access
+    volumes:
+      - llm-wiki-data:/home/appuser/wiki
+      # 文件导入目录：将主机上的文件夹映射到容器内，供 LLM-Wiki 导入使用
+      # Windows 用户可通过 SFTP/SMB 将文件放到 Linux 服务器的此目录，然后在 LLM-Wiki 中点击 "Import Folder" 选择 /home/appuser/import
+      # 如需自定义路径，请修改为服务器上的实际绝对路径，例如 /data/wiki-import:/home/appuser/import
+      - ./import:/home/appuser/import
+      # 挂载 entrypoint 脚本：修改后无需重新构建镜像，直接重启容器即可生效
+      - ./docker/entrypoint.sh:/opt/llm-wiki/entrypoint.sh:ro
+    environment:
+      - SCREEN_SIZE=1920x1080x24
+      # Locale: en_US.UTF-8 for app runtime, supports fcitx5 Chinese input
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en
+      - LC_ALL=en_US.UTF-8
+      # IM modules: XIM for GTK (im-fcitx5.so removed from image), fcitx for Qt, XMODIFIERS for XIM protocol
+      - GTK_IM_MODULE=xim
+      - QT_IM_MODULE=fcitx
+      - XMODIFIERS=@im=fcitx
+      # XDG runtime dir required by fcitx5
+      - XDG_RUNTIME_DIR=/tmp/runtime-appuser
+    restart: unless-stopped
+
+volumes:
+  llm-wiki-data:
+    driver: local
